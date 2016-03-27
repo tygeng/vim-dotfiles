@@ -25,10 +25,11 @@ endif
 
 " General {{{
 " Use indentation for folds
-set foldmethod=indent
-set foldnestmax=5
-set foldlevelstart=99
-set foldcolumn=0
+set nofoldenable
+" set foldmethod=indent
+" set foldnestmax=5
+" set foldlevelstart=99
+" set foldcolumn=0
 
 " File auto commands:
 au FileType markdown set makeprg=multimarkdown\ %\ -o\ %.html
@@ -47,8 +48,6 @@ set history=700
 
 " Set to auto read when a file is changed from the outside
 set autoread
-" remember last position when reopen file
-set viminfo='10,\"100,:20,%,n~/.viminfo
 
 " With a map leader it's possible to do extra key combinations
 " like <leader>w saves the current file
@@ -144,6 +143,7 @@ Plug '~/.config/nvim/bundle/tgeng-own'
 " Plug 'vim-scripts/wombat256.vim'
 
 " Custom bundles
+Plug 'rhysd/nyaovim-markdown-preview', {'for': 'markdown'}
 
 if filereadable(hvn_user_plugins)
   execute 'source '. hvn_user_plugins
@@ -771,6 +771,11 @@ nnoremap T :Tab /
 vnoremap T :Tab /
 " }}}
 
+" NyaoVim {{{
+let g:markdown_preview_auto = 0
+let g:markdown_preview_eager = 1
+" }}}
+
 " My custom bindings {{{
 nnoremap <Right> *
 nnoremap <Left> #
@@ -830,4 +835,15 @@ autocmd FileType c,cpp,java,php,python,markdown autocmd BufWritePre <buffer> :%s
 nnoremap <C-s> :wa<CR>
 inoremap <C-s> <Esc>:w<CR>
 vnoremap <C-s> v:w<CR>
+
+noremap <silent> s :call ToggleComment()<CR>
+noremap <silent> gc :call Comment()<CR>
+noremap <silent> gu :call UnComment()<CR>
+
+nnoremap <silent> <F3> :set hlsearch!<CR>
+imap <F3> <C-o><F3>
+set pastetoggle=<F2>
+nnoremap <silent> <F4> :set spell!<CR>
+imap <F4>  <C-o><F4>
+set showmode
 " }}}
