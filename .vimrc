@@ -30,6 +30,11 @@ set foldnestmax=5
 set foldlevelstart=99
 set foldcolumn=0
 
+" File auto commands:
+au FileType markdown set makeprg=multimarkdown\ %\ -o\ %.html
+au FileType tex set makeprg=pdflatex\ -halt-on-error\ %
+au FileType ruby,html,xhtml,xml,eruby,css,php,objc set tabstop=2 shiftwidth=2
+
 augroup vimrcFold
   " fold vimrc itself by categories
   autocmd!
@@ -42,6 +47,8 @@ set history=700
 
 " Set to auto read when a file is changed from the outside
 set autoread
+" remember last position when reopen file
+set viminfo='10,\"100,:20,%,n~/.viminfo
 
 " With a map leader it's possible to do extra key combinations
 " like <leader>w saves the current file
@@ -115,6 +122,12 @@ Plug 'godlygeek/tabular'
 Plug 'michaeljsmith/vim-indent-object'
 Plug 'easymotion/vim-easymotion'
 
+" IDE
+Plug 'Valloric/YouCompleteMe'
+Plug 'scrooloose/syntastic'
+Plug 'Raimondi/delimitMate'
+Plug 'airblade/vim-gitgutter'
+
 " Allow pane movement to jump out of vim into tmux
 Plug 'christoomey/vim-tmux-navigator'
 
@@ -166,7 +179,6 @@ set cmdheight=1
 
 " Configure backspace so it acts as it should act
 set backspace=eol,start,indent
-set whichwrap+=<,>,h,l
 
 " Ignore case when searching
 set ignorecase
@@ -344,8 +356,15 @@ vnoremap <silent> # :call VisualSelection('b', '')<CR>
 " Moving around, tabs, windows and buffers {{{
 
 " Treat long lines as break lines (useful when moving around in them)
+call arpeggio#map('iv', '', 0, 'jk', '<Esc>')
 nnoremap j gj
 nnoremap k gk
+nnoremap gj j
+nnoremap gk k
+vnoremap j gj
+vnoremap k gk
+vnoremap gj j
+vnoremap gk k
 
 " Disable highlight when <leader><cr> is pressed
 " but preserve cursor coloring
@@ -706,4 +725,109 @@ if filereadable(hvn_config_post)
   execute 'source '. hvn_config_post
 endif
 
+" }}}
+
+" YouCompleteMe {{{
+au Filetype c,cpp,objc,objcpp,python,cs noremap gd :YcmCompleter GoTo<CR>
+au Filetype c,cpp,objc,objcpp,python,cs noremap gb <C-o>
+let g:ycm_always_populate_location_list = 1
+let g:ycm_global_ycm_extra_conf = '~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+" au FileType c let g:ycm_global_ycm_extra_conf = '~/.dotfiles/vim/.vim/.ycm_extra_conf_c.py'
+" au FileType objc let g:ycm_global_ycm_extra_conf = '~/.dotfiles/vim/.vim/.ycm_extra_conf_objc.py'
+let g:ycm_add_preview_to_completeopt=1
+let g:ycm_autoclose_preview_window_after_insertion=1
+let g:EclimCompletionMethod = 'omnifunc'
+" }}}
+
+" Syntastic {{{
+let g:syntastic_auto_loc_list=1
+let g:syntastic_enable_signs=1
+let g:syntastic_loc_list_height=5
+let g:syntastic_mode_map = { 'mode': 'active',
+            \ 'active_filetypes': ['c'],
+            \ 'passive_filetypes': ["tex"] }
+
+set statusline=%<\ %n:%f\ %m%r%y%{SyntasticStatuslineFlag()}%=(%l\ ,\ %c%V)\ Total:\ %L\ 
+" work around for the location list bug
+autocmd FileType c,cpp,objc nnoremap ZQ :lcl<bar>q!<CR>
+vmap ZQ vZQ
+autocmd FileType c,cpp,objc nnoremap ZZ :lcl<bar>w<bar>lcl<bar>q<CR>
+vmap ZZ vZZ
+" }}}
+
+" DelimitMate {{{
+" For DelimitMate
+let delimitMate_expand_cr = 1
+let delimitMate_expand_space = 1
+" }}}
+
+" GitGutter {{{
+let g:gitgutter_sign_column_always = 1
+let g:gitgutter_diff_args = 'HEAD'
+" }}}
+
+" Tabular {{{
+nnoremap T :Tab /
+vnoremap T :Tab /
+" }}}
+
+" My custom bindings {{{
+nnoremap <Right> *
+nnoremap <Left> #
+nnoremap <up> 3<c-y>
+nnoremap <down> 3<c-e>
+imap <Home> <C-o>^
+map <Home> ^
+map <c-d> <delete>
+imap <c-d> <Delete>
+nmap <C-d> <Delete>
+vmap <C-d> <Delete>
+map <C-a> <Home>
+map <C-e> <End>
+" nmap <C-f> <Right>
+" nmap <C-b> <Left>
+" nmap <C-n> <Down>
+" nmap <C-p> <Up>
+nmap <C-l> <Right>
+nmap <C-h> <Left>
+nmap <C-j> <Down>
+nmap <C-k> <Up>
+
+imap <C-a> <Home>
+imap <C-e> <End>
+inoremap <C-l> <Right>
+inoremap <C-h> <Left>
+inoremap <C-j> <Down>
+inoremap <C-k> <Up>
+cnoremap <C-l> <Right>
+cnoremap <C-h> <Left>
+cnoremap <C-j> <Down>
+cnoremap <C-k> <Up>
+noremap <C-z> <C-a>
+
+nnoremap U :redo<CR>
+nnoremap w viw
+vnoremap w e
+nnoremap W viW
+vnoremap W E
+
+autocmd VimLeave * call system("xsel -ib", getreg('+'))
+" v_P for non swap pasting
+vnoremap P pgvy
+vnoremap Q gq
+set cul
+autocmd InsertEnter * set nocul
+autocmd InsertLeave * set cul
+
+nnoremap R :%s/\<<C-r><C-w>\>//g<Left><Left>
+vmap R *N:%s///g<Left><Left>
+vmap <Right> *
+vmap <Left> #
+nmap <M-a> ggVGy
+
+autocmd FileType c,cpp,java,php,python,markdown autocmd BufWritePre <buffer> :%s/\s\+$//e
+
+nnoremap <C-s> :wa<CR>
+inoremap <C-s> <Esc>:w<CR>
+vnoremap <C-s> v:w<CR>
 " }}}
