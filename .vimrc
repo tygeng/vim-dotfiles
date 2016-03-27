@@ -127,7 +127,8 @@ Plug 'Twinside/vim-hoogle', { 'for': 'haskell' }
 Plug 'mpickering/hlint-refactor-vim', { 'for': 'haskell' }
 
 " Colorscheme
-Plug 'vim-scripts/wombat256.vim'
+Plug '~/.config/nvim/bundle/tgeng-own'
+" Plug 'vim-scripts/wombat256.vim'
 
 " Custom bundles
 
@@ -217,18 +218,18 @@ set mouse=a
 " Colors and Fonts {{{
 
 try
-  colorscheme wombat256mod
+  colorscheme monokai
 catch
 endtry
 
-" Adjust signscolumn to match wombat
+" Adjust signscolumn to match monokai
 hi! link SignColumn LineNr
 
 " Use pleasant but very visible search hilighting
 hi Search ctermfg=white ctermbg=173 cterm=none guifg=#ffffff guibg=#e5786d gui=none
 hi! link Visual Search
 
-" Match wombat colors in nerd tree
+" Match monokai colors in nerd tree
 hi Directory guifg=#8ac6f2
 
 " Searing red very visible cursor
@@ -292,7 +293,7 @@ augroup END
 nmap <leader>e :e <C-R>=expand("%:p:h") . '/'<CR>
 
 " Show undo tree
-nmap <silent> <leader>u :GundoToggle<CR>
+nmap <silent> <leader>u :MundoToggle<CR>
 
 " Fuzzy find files
 nnoremap <silent> <Leader><space> :CtrlP<CR>
@@ -320,7 +321,6 @@ set tw=500
 
 set ai "Auto indent
 set si "Smart indent
-set wrap "Wrap lines
 
 " Pretty unicode haskell symbols
 let g:haskell_conceal_wide = 1
@@ -328,12 +328,7 @@ let g:haskell_conceal_enumerations = 1
 let hscoptions="𝐒𝐓𝐄𝐌xRtB𝔻w"
 
 " Copy and paste to os clipboard
-nmap <leader>y "*y
-vmap <leader>y "*y
-nmap <leader>d "*d
-vmap <leader>d "*d
-nmap <leader>p "*p
-vmap <leader>p "*p
+set clipboard+=unnamedplus
 
 " }}}
 
@@ -351,11 +346,6 @@ vnoremap <silent> # :call VisualSelection('b', '')<CR>
 " Treat long lines as break lines (useful when moving around in them)
 nnoremap j gj
 nnoremap k gk
-
-noremap <c-h> <c-w>h
-noremap <c-k> <c-w>k
-noremap <c-j> <c-w>j
-noremap <c-l> <c-w>l
 
 " Disable highlight when <leader><cr> is pressed
 " but preserve cursor coloring
@@ -386,10 +376,10 @@ nmap <leader>sj :rightbelow new<CR>
 " Manually create key mappings (to avoid rebinding C-\)
 let g:tmux_navigator_no_mappings = 1
 
-nnoremap <silent> <C-h> :TmuxNavigateLeft<cr>
-nnoremap <silent> <C-j> :TmuxNavigateDown<cr>
-nnoremap <silent> <C-k> :TmuxNavigateUp<cr>
-nnoremap <silent> <C-l> :TmuxNavigateRight<cr>
+nnoremap <silent> <M-h> :TmuxNavigateLeft<cr>
+nnoremap <silent> <M-j> :TmuxNavigateDown<cr>
+nnoremap <silent> <M-k> :TmuxNavigateUp<cr>
+nnoremap <silent> <M-l> :TmuxNavigateRight<cr>
 
 " don't close buffers when you aren't displaying them
 set hidden
