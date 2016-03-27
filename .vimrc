@@ -32,7 +32,7 @@ set nofoldenable
 " set foldcolumn=0
 
 " File auto commands:
-au FileType markdown set makeprg=multimarkdown\ %\ -o\ %.html
+au FileType markdown set makeprg=multimarkdown\ %\ -o\ %.html | nnoremap <Leader>p :StartMarkdownPreview<CR>
 au FileType tex set makeprg=pdflatex\ -halt-on-error\ %
 au FileType ruby,html,xhtml,xml,eruby,css,php,objc set tabstop=2 shiftwidth=2
 
@@ -170,9 +170,7 @@ set number
 " Show trailing whitespace
 set list
 " But only interesting whitespace
-if &listchars ==# 'eol:$'
-  set listchars=tab:>\ ,trail:-,extends:>,precedes:<,nbsp:+
-endif
+set listchars=tab:>-,trail:·,extends:>,precedes:<,nbsp:+
 
 " Height of the command bar
 set cmdheight=1
@@ -327,9 +325,9 @@ set smarttab
 set shiftwidth=2
 set tabstop=2
 
-" Linebreak on 500 characters
+" Linebreak on 100 characters
 set lbr
-set tw=500
+set tw=100
 
 set ai "Auto indent
 set si "Smart indent
