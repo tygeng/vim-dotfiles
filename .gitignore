@@ -6,3 +6,5 @@
 .stack
 .stack-*
 backup
+!.vim/autoload
+!.vim/bundle/tgeng-own

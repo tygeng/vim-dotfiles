@@ -124,6 +124,7 @@ Plug 'easymotion/vim-easymotion'
 " IDE
 Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-gitgutter'
+Plug 'scrooloose/syntastic'
 
 " Allow pane movement to jump out of vim into tmux
 Plug 'christoomey/vim-tmux-navigator'
@@ -142,6 +143,7 @@ Plug '~/.config/nvim/bundle/tgeng-own'
 
 " Custom bundles
 Plug 'rhysd/nyaovim-markdown-preview', {'for': 'markdown'}
+Plug 'google/vim-ft-bzl'
 
 if filereadable(hvn_user_plugins)
   execute 'source '. hvn_user_plugins
@@ -201,7 +203,6 @@ set mat=2
 
 " No annoying sound on errors
 set noerrorbells
-set vb t_vb=
 
 if &term =~ '256color'
   " disable Background Color Erase (BCE) so that color schemes
@@ -222,13 +223,6 @@ nnoremap <leader>mo :set mouse=<cr>
 " Default to mouse mode on
 set mouse=a
 " }}}
-
-" Colors and Fonts {{{
-
-try
-  colorscheme monokai
-catch
-endtry
 
 " Adjust signscolumn to match monokai
 hi! link SignColumn LineNr
@@ -252,8 +246,8 @@ set guicursor+=n-v-c:blinkon0
 
 " Set extra options when running in GUI mode
 if has("gui_running")
-  set guioptions-=T
-  set guioptions-=e
+  set guioptions=
+  set guifont=Hack\ 10
   set guitablabel=%M\ %t
 endif
 set t_Co=256
@@ -267,9 +261,6 @@ endif
 
 " Use Unix as the standard file type
 set ffs=unix,dos,mac
-
-" Use large font by default in MacVim
-set gfn=Monaco:h19
 
 " Use powerline fonts for airline
 if !exists('g:airline_symbols')
@@ -336,7 +327,7 @@ let g:haskell_conceal_enumerations = 1
 let hscoptions="𝐒𝐓𝐄𝐌xRtB𝔻w"
 
 " Copy and paste to os clipboard
-set clipboard+=unnamedplus
+set clipboard=unnamedplus
 
 " }}}
 
@@ -739,10 +730,11 @@ let g:EclimCompletionMethod = 'omnifunc'
 " }}}
 
 " Syntastic {{{
+nnoremap <C-d> :SyntasticCheck<CR>
 let g:syntastic_auto_loc_list=1
 let g:syntastic_enable_signs=1
 let g:syntastic_loc_list_height=5
-let g:syntastic_mode_map = { 'mode': 'active',
+let g:syntastic_mode_map = { 'mode': 'passive',
             \ 'active_filetypes': ['c'],
             \ 'passive_filetypes': ["tex"] }
 
@@ -775,6 +767,41 @@ let g:markdown_preview_auto = 0
 let g:markdown_preview_eager = 1
 " }}}
 
+" Google {{{
+if filereadable('/usr/share/vim/google/google.vim')
+    source /usr/share/vim/google/google.vim 
+    Glug magic
+    Glug blaze plugin[mappings]='<C-b>'
+    Glug blazedeps
+    Glug codefmt
+    nnoremap <M-f> :FormatCode<CR>
+    inoremap <M-f> <Esc>:FormatCode<CR>
+    Glug easygoogle
+    Glug findinc
+    Glug ft-proto
+    Glug ft-python
+    Glug google-filetypes
+    Glug googlepaths
+    Glug googlestyle
+    Glug syntastic-google checkers=`{'python': 'gpylint'}`
+    Glug youcompleteme-google
+    Glug gtimporter
+    Glug relatedfiles plugin[mappings]='<C-f>'
+
+    let g:ctrlp_user_command = '/usr/bin/ag %s -i --nocolor --nogroup --hidden
+          \ --ignore .git
+          \ --ignore .svn
+          \ --ignore .hg
+          \ --ignore .DS_Store
+          \ --ignore "**/*.pyc"
+          \ --ignore .git5_specs
+          \ --ignore review
+          \ -g ""'
+endif
+au BufRead,BufNewFile *.json set filetype=json
+" }}}
+
+
 " My custom bindings {{{
 nnoremap <Right> *
 nnoremap <Left> #
@@ -782,10 +809,6 @@ nnoremap <up> 3<c-y>
 nnoremap <down> 3<c-e>
 imap <Home> <C-o>^
 map <Home> ^
-map <c-d> <delete>
-imap <c-d> <Delete>
-nmap <C-d> <Delete>
-vmap <C-d> <Delete>
 map <C-a> <Home>
 map <C-e> <End>
 " nmap <C-f> <Right>
@@ -829,11 +852,19 @@ vmap <Right> *
 vmap <Left> #
 nmap <M-a> ggVGy
 
-autocmd FileType c,cpp,java,php,python,markdown autocmd BufWritePre <buffer> :%s/\s\+$//e
-
 nnoremap <C-s> :wa<CR>
 inoremap <C-s> <Esc>:w<CR>
 vnoremap <C-s> v:w<CR>
+
+nnoremap <M-=> 3<C-w>+
+nnoremap <M--> 3<C-w>-
+nnoremap <M-.> 3<C-w>.
+nnoremap <M-,> 3<C-w>,
+
+inoremap <M-+> 3<C-w>=
+inoremap <M--> 3<C-w>-
+inoremap <M-.> 3<C-w>.
+inoremap <M-,> 3<C-w>,
 
 noremap <silent> s :call ToggleComment()<CR>
 noremap <silent> gc :call Comment()<CR>
@@ -845,40 +876,12 @@ set pastetoggle=<F2>
 nnoremap <silent> <F4> :set spell!<CR>
 imap <F4>  <C-o><F4>
 set showmode
+
+" Colors and Fonts {{{
+
+try
+  colorscheme monokai
+catch
+endtry
+
 " }}}
-
-
-if filereadable('/usr/share/vim/google/google.vim')
-    source /usr/share/vim/google/google.vim 
-    Glug magic
-    Glug blaze plugin[mappings]='<C-b>'
-    Glug blazedeps
-    Glug codefmt
-    nnoremap <M-f> :FormatCode<CR>
-    inoremap <M-f> <Esc>:FormatCode<CR>
-    Glug easygoogle
-    Glug findinc
-    Glug ft-proto
-    Glug ft-python
-    Glug google-filetypes
-    Glug googlepaths
-    Glug googlestyle
-    Glug syntastic-google checkers=`{'python': 'gpylint'}`
-    let g:syntastic_mode_map = {'mode': 'passive'}
-    nnoremap <C-d> :SyntasticCheck<CR>
-    Glug youcompleteme-google
-    Glug gtimporter
-    Glug relatedfiles plugin[mappings]='<C-f>'
-
-    let g:ctrlp_user_command = '/usr/bin/ag %s -i --nocolor --nogroup --hidden
-          \ --ignore .git
-          \ --ignore .svn
-          \ --ignore .hg
-          \ --ignore .DS_Store
-          \ --ignore "**/*.pyc"
-          \ --ignore .git5_specs
-          \ --ignore review
-          \ -g ""'
-
-endif
-au BufRead,BufNewFile *.json set filetype=json
