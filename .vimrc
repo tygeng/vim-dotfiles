@@ -122,8 +122,6 @@ Plug 'michaeljsmith/vim-indent-object'
 Plug 'easymotion/vim-easymotion'
 
 " IDE
-Plug 'Valloric/YouCompleteMe'
-Plug 'scrooloose/syntastic'
 Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-gitgutter'
 
@@ -848,3 +846,39 @@ nnoremap <silent> <F4> :set spell!<CR>
 imap <F4>  <C-o><F4>
 set showmode
 " }}}
+
+
+if filereadable('/usr/share/vim/google/google.vim')
+    source /usr/share/vim/google/google.vim 
+    Glug magic
+    Glug blaze plugin[mappings]='<C-b>'
+    Glug blazedeps
+    Glug codefmt
+    nnoremap <M-f> :FormatCode<CR>
+    inoremap <M-f> <Esc>:FormatCode<CR>
+    Glug easygoogle
+    Glug findinc
+    Glug ft-proto
+    Glug ft-python
+    Glug google-filetypes
+    Glug googlepaths
+    Glug googlestyle
+    Glug syntastic-google checkers=`{'python': 'gpylint'}`
+    let g:syntastic_mode_map = {'mode': 'passive'}
+    nnoremap <C-d> :SyntasticCheck<CR>
+    Glug youcompleteme-google
+    Glug gtimporter
+    Glug relatedfiles plugin[mappings]='<C-f>'
+
+    let g:ctrlp_user_command = '/usr/bin/ag %s -i --nocolor --nogroup --hidden
+          \ --ignore .git
+          \ --ignore .svn
+          \ --ignore .hg
+          \ --ignore .DS_Store
+          \ --ignore "**/*.pyc"
+          \ --ignore .git5_specs
+          \ --ignore review
+          \ -g ""'
+
+endif
+au BufRead,BufNewFile *.json set filetype=json
