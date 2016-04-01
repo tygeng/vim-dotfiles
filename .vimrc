@@ -25,10 +25,16 @@ endif
 
 " General {{{
 " Use indentation for folds
-set foldmethod=indent
-set foldnestmax=5
-set foldlevelstart=99
-set foldcolumn=0
+set nofoldenable
+" set foldmethod=indent
+" set foldnestmax=5
+" set foldlevelstart=99
+" set foldcolumn=0
+
+" File auto commands:
+au FileType markdown set makeprg=multimarkdown\ %\ -o\ %.html | nnoremap <Leader>p :StartMarkdownPreview<CR>
+au FileType tex set makeprg=pdflatex\ -halt-on-error\ %
+au FileType ruby,html,xhtml,xml,eruby,css,php,objc set tabstop=2 shiftwidth=2
 
 augroup vimrcFold
   " fold vimrc itself by categories
@@ -115,6 +121,12 @@ Plug 'godlygeek/tabular'
 Plug 'michaeljsmith/vim-indent-object'
 Plug 'easymotion/vim-easymotion'
 
+" IDE
+Plug 'Valloric/YouCompleteMe'
+Plug 'scrooloose/syntastic'
+Plug 'Raimondi/delimitMate'
+Plug 'airblade/vim-gitgutter'
+
 " Allow pane movement to jump out of vim into tmux
 Plug 'christoomey/vim-tmux-navigator'
 
@@ -127,9 +139,11 @@ Plug 'Twinside/vim-hoogle', { 'for': 'haskell' }
 Plug 'mpickering/hlint-refactor-vim', { 'for': 'haskell' }
 
 " Colorscheme
-Plug 'vim-scripts/wombat256.vim'
+Plug '~/.config/nvim/bundle/tgeng-own'
+" Plug 'vim-scripts/wombat256.vim'
 
 " Custom bundles
+Plug 'rhysd/nyaovim-markdown-preview', {'for': 'markdown'}
 
 if filereadable(hvn_user_plugins)
   execute 'source '. hvn_user_plugins
@@ -156,16 +170,13 @@ set number
 " Show trailing whitespace
 set list
 " But only interesting whitespace
-if &listchars ==# 'eol:$'
-  set listchars=tab:>\ ,trail:-,extends:>,precedes:<,nbsp:+
-endif
+set listchars=tab:>-,trail:·,extends:>,precedes:<,nbsp:+
 
 " Height of the command bar
 set cmdheight=1
 
 " Configure backspace so it acts as it should act
 set backspace=eol,start,indent
-set whichwrap+=<,>,h,l
 
 " Ignore case when searching
 set ignorecase
@@ -217,18 +228,18 @@ set mouse=a
 " Colors and Fonts {{{
 
 try
-  colorscheme wombat256mod
+  colorscheme monokai
 catch
 endtry
 
-" Adjust signscolumn to match wombat
+" Adjust signscolumn to match monokai
 hi! link SignColumn LineNr
 
 " Use pleasant but very visible search hilighting
 hi Search ctermfg=white ctermbg=173 cterm=none guifg=#ffffff guibg=#e5786d gui=none
 hi! link Visual Search
 
-" Match wombat colors in nerd tree
+" Match monokai colors in nerd tree
 hi Directory guifg=#8ac6f2
 
 " Searing red very visible cursor
@@ -292,7 +303,7 @@ augroup END
 nmap <leader>e :e <C-R>=expand("%:p:h") . '/'<CR>
 
 " Show undo tree
-nmap <silent> <leader>u :GundoToggle<CR>
+nmap <silent> <leader>u :MundoToggle<CR>
 
 " Fuzzy find files
 nnoremap <silent> <Leader><space> :CtrlP<CR>
@@ -314,13 +325,12 @@ set smarttab
 set shiftwidth=2
 set tabstop=2
 
-" Linebreak on 500 characters
+" Linebreak on 100 characters
 set lbr
-set tw=500
+set tw=100
 
 set ai "Auto indent
 set si "Smart indent
-set wrap "Wrap lines
 
 " Pretty unicode haskell symbols
 let g:haskell_conceal_wide = 1
@@ -328,12 +338,7 @@ let g:haskell_conceal_enumerations = 1
 let hscoptions="𝐒𝐓𝐄𝐌xRtB𝔻w"
 
 " Copy and paste to os clipboard
-nmap <leader>y "*y
-vmap <leader>y "*y
-nmap <leader>d "*d
-vmap <leader>d "*d
-nmap <leader>p "*p
-vmap <leader>p "*p
+set clipboard+=unnamedplus
 
 " }}}
 
@@ -349,13 +354,15 @@ vnoremap <silent> # :call VisualSelection('b', '')<CR>
 " Moving around, tabs, windows and buffers {{{
 
 " Treat long lines as break lines (useful when moving around in them)
+call arpeggio#map('iv', '', 0, 'jk', '<Esc>')
 nnoremap j gj
 nnoremap k gk
-
-noremap <c-h> <c-w>h
-noremap <c-k> <c-w>k
-noremap <c-j> <c-w>j
-noremap <c-l> <c-w>l
+nnoremap gj j
+nnoremap gk k
+vnoremap j gj
+vnoremap k gk
+vnoremap gj j
+vnoremap gk k
 
 " Disable highlight when <leader><cr> is pressed
 " but preserve cursor coloring
@@ -386,10 +393,10 @@ nmap <leader>sj :rightbelow new<CR>
 " Manually create key mappings (to avoid rebinding C-\)
 let g:tmux_navigator_no_mappings = 1
 
-nnoremap <silent> <C-h> :TmuxNavigateLeft<cr>
-nnoremap <silent> <C-j> :TmuxNavigateDown<cr>
-nnoremap <silent> <C-k> :TmuxNavigateUp<cr>
-nnoremap <silent> <C-l> :TmuxNavigateRight<cr>
+nnoremap <silent> <M-h> :TmuxNavigateLeft<cr>
+nnoremap <silent> <M-j> :TmuxNavigateDown<cr>
+nnoremap <silent> <M-k> :TmuxNavigateUp<cr>
+nnoremap <silent> <M-l> :TmuxNavigateRight<cr>
 
 " don't close buffers when you aren't displaying them
 set hidden
@@ -719,4 +726,125 @@ if filereadable(hvn_config_post)
   execute 'source '. hvn_config_post
 endif
 
+" }}}
+
+" YouCompleteMe {{{
+au Filetype c,cpp,objc,objcpp,python,cs noremap gd :YcmCompleter GoTo<CR>
+au Filetype c,cpp,objc,objcpp,python,cs noremap gb <C-o>
+let g:ycm_always_populate_location_list = 1
+let g:ycm_global_ycm_extra_conf = '~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+" au FileType c let g:ycm_global_ycm_extra_conf = '~/.dotfiles/vim/.vim/.ycm_extra_conf_c.py'
+" au FileType objc let g:ycm_global_ycm_extra_conf = '~/.dotfiles/vim/.vim/.ycm_extra_conf_objc.py'
+let g:ycm_add_preview_to_completeopt=1
+let g:ycm_autoclose_preview_window_after_insertion=1
+let g:EclimCompletionMethod = 'omnifunc'
+" }}}
+
+" Syntastic {{{
+let g:syntastic_auto_loc_list=1
+let g:syntastic_enable_signs=1
+let g:syntastic_loc_list_height=5
+let g:syntastic_mode_map = { 'mode': 'active',
+            \ 'active_filetypes': ['c'],
+            \ 'passive_filetypes': ["tex"] }
+
+set statusline=%<\ %n:%f\ %m%r%y%{SyntasticStatuslineFlag()}%=(%l\ ,\ %c%V)\ Total:\ %L\ 
+" work around for the location list bug
+autocmd FileType c,cpp,objc nnoremap ZQ :lcl<bar>q!<CR>
+vmap ZQ vZQ
+autocmd FileType c,cpp,objc nnoremap ZZ :lcl<bar>w<bar>lcl<bar>q<CR>
+vmap ZZ vZZ
+" }}}
+
+" DelimitMate {{{
+" For DelimitMate
+let delimitMate_expand_cr = 1
+let delimitMate_expand_space = 1
+" }}}
+
+" GitGutter {{{
+let g:gitgutter_sign_column_always = 1
+let g:gitgutter_diff_args = 'HEAD'
+" }}}
+
+" Tabular {{{
+nnoremap T :Tab /
+vnoremap T :Tab /
+" }}}
+
+" NyaoVim {{{
+let g:markdown_preview_auto = 0
+let g:markdown_preview_eager = 1
+" }}}
+
+" My custom bindings {{{
+nnoremap <Right> *
+nnoremap <Left> #
+nnoremap <up> 3<c-y>
+nnoremap <down> 3<c-e>
+imap <Home> <C-o>^
+map <Home> ^
+map <c-d> <delete>
+imap <c-d> <Delete>
+nmap <C-d> <Delete>
+vmap <C-d> <Delete>
+map <C-a> <Home>
+map <C-e> <End>
+" nmap <C-f> <Right>
+" nmap <C-b> <Left>
+" nmap <C-n> <Down>
+" nmap <C-p> <Up>
+nmap <C-l> <Right>
+nmap <C-h> <Left>
+nmap <C-j> <Down>
+nmap <C-k> <Up>
+
+imap <C-a> <Home>
+imap <C-e> <End>
+inoremap <C-l> <Right>
+inoremap <C-h> <Left>
+inoremap <C-j> <Down>
+inoremap <C-k> <Up>
+cnoremap <C-l> <Right>
+cnoremap <C-h> <Left>
+cnoremap <C-j> <Down>
+cnoremap <C-k> <Up>
+noremap <C-z> <C-a>
+
+nnoremap U :redo<CR>
+nnoremap w viw
+vnoremap w e
+nnoremap W viW
+vnoremap W E
+
+autocmd VimLeave * call system("xsel -ib", getreg('+'))
+" v_P for non swap pasting
+vnoremap P pgvy
+vnoremap Q gq
+set cul
+autocmd InsertEnter * set nocul
+autocmd InsertLeave * set cul
+
+nnoremap R :%s/\<<C-r><C-w>\>//g<Left><Left>
+vmap R *N:%s///g<Left><Left>
+vmap <Right> *
+vmap <Left> #
+nmap <M-a> ggVGy
+
+autocmd FileType c,cpp,java,php,python,markdown autocmd BufWritePre <buffer> :%s/\s\+$//e
+
+nnoremap <C-s> :wa<CR>
+inoremap <C-s> <Esc>:w<CR>
+vnoremap <C-s> v:w<CR>
+
+noremap <silent> s :call ToggleComment()<CR>
+noremap <silent> gc :call Comment()<CR>
+noremap <silent> gu :call UnComment()<CR>
+
+nnoremap <silent> <F3> :set hlsearch!<CR>
+imap <F3> <C-o><F3>
+set pastetoggle=<F2>
+nnoremap <silent> <F4> :set spell!<CR>
+imap <F4>  <C-o><F4>
+set showmode
 " }}}
