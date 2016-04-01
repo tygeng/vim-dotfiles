@@ -728,6 +728,7 @@ endif
 " YouCompleteMe {{{
 au Filetype c,cpp,objc,objcpp,python,cs noremap gd :YcmCompleter GoTo<CR>
 au Filetype c,cpp,objc,objcpp,python,cs noremap gb <C-o>
+let g:ycm_server_python_interpreter='/usr/bin/python'
 let g:ycm_always_populate_location_list = 1
 let g:ycm_global_ycm_extra_conf = '~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
 " au FileType c let g:ycm_global_ycm_extra_conf = '~/.dotfiles/vim/.vim/.ycm_extra_conf_c.py'
@@ -844,4 +845,12 @@ set pastetoggle=<F2>
 nnoremap <silent> <F4> :set spell!<CR>
 imap <F4>  <C-o><F4>
 set showmode
+
+if has("gui_running")
+    set guifont=Hack\ 10
+    set guioptions=  
+    set novb
+else
+    set t_Co=256
+endif
 " }}}
